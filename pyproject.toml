@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "mcp-tools"
+version = "0.1.0"
+description = "MCP Tools Project"
+authors = ["Mindro Development Team <info@mindro-ai.com>"]
+readme = "README.md"
+packages = [{include = "mcp_tools"}]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.4.1"
+
+[tool.poetry.scripts]
+mcp-server = "mcp_tools.__main__:main"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
