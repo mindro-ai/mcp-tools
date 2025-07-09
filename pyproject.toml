@@ -8,12 +8,77 @@ packages = [{include = "mcp_tools"}]
 
 [tool.poetry.dependencies]
 python = "^3.12"
+httpx = "^0.27.0"
+pydantic = "^2.8.0"
+mcp = "^1.0.0"
+python-dotenv = "^1.0.0"
+uvicorn = "^0.27.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.4.1"
+pylint = "^3.0.0"
 
 [tool.poetry.scripts]
 mcp-server = "mcp_tools.__main__:main"
+
+[tool.pylint.messages_control]
+disable = [
+    "C0114",  # missing-module-docstring
+    "C0115",  # missing-class-docstring
+    "C0116",  # missing-function-docstring
+    "C0303",  # trailing-whitespace
+    "R0903",  # too-few-public-methods
+    "R0913",  # too-many-arguments
+    "R0914",  # too-many-locals
+    "R0915",  # too-many-statements
+    "W0621",  # redefined-outer-name
+    "W0703",  # broad-except
+    "W0612",  # unused-variable
+    "W0611",  # unused-import
+]
+
+[tool.pylint.format]
+max-line-length = 88
+good-names = ["i", "j", "k", "ex", "Run", "_", "id", "db"]
+
+[tool.pylint.basic]
+good-names = ["i", "j", "k", "ex", "Run", "_", "id", "db"]
+
+[tool.pylint.design]
+max-args = 10
+max-locals = 20
+max-returns = 10
+max-branches = 15
+max-statements = 60
+max-parents = 7
+max-attributes = 10
+min-public-methods = 0
+max-public-methods = 30
+
+[tool.pylint.exceptions]
+overgeneral-exceptions = ["Exception"]
+
+[tool.pylint.refactoring]
+max-nested-blocks = 5
+
+[tool.pylint.variables]
+allowed-global-variables = ["_"]
+dummy-variables-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.pylint.classes]
+exclude-protected = ["_asdict", "_fields", "_replace", "_source", "_make"]
+
+[tool.pylint.imports]
+deprecated-modules = ["regsub", "TERMIOS", "Bastion", "rexec"]
+import-graph = []
+ext-import-graph = []
+int-import-graph = []
+
+[tool.pylint.string]
+check-quote-consistency = true
+
+[tool.pylint.miscellaneous]
+notes = []
 
 [build-system]
 requires = ["poetry-core"]
