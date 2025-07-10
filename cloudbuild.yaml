@@ -1,0 +1,73 @@
+steps:
+  # Install dependencies using Poetry.
+  # We cache the poetry virtual environment in a named volume called 'venv'.
+  # This allows subsequent steps to reuse the installed packages without re-installing.
+  - name: 'python:3.12'
+    id: 'Install Dependencies'
+    entrypoint: 'python'
+    args:
+      - '-c'
+      - |
+        import subprocess
+        subprocess.run(['pip', 'install', 'poetry'], check=True)
+        subprocess.run(['poetry', 'config', 'virtualenvs.in-project', 'true'], check=True)
+        subprocess.run(['poetry', 'install', '--no-interaction', '--no-ansi'], check=True)
+    volumes:
+      - name: 'venv'
+        path: '/workspace/.venv'
+
+  # Run tests using the cached virtual environment.
+  # The 'venv' volume is mounted, so we can directly use the poetry executable from there.
+  - name: 'python:3.12'
+    id: 'Run Tests'
+    entrypoint: 'python'
+    args:
+      - '-c'
+      - |
+        import subprocess
+        subprocess.run(['pip', 'install', 'poetry'], check=True)
+        subprocess.run(['poetry', 'run', 'pytest'], check=True)
+    volumes:
+      - name: 'venv'
+        path: '/workspace/.venv'
+
+  # Build the project artifacts (e.g., a wheel and sdist).
+  # The built artifacts will be in the 'dist/' directory.
+  - name: 'python:3.12'
+    id: 'Build'
+    entrypoint: 'python'
+    args:
+      - '-c'
+      - |
+        import subprocess
+        subprocess.run(['pip', 'install', 'poetry'], check=True)
+        subprocess.run(['poetry', 'build', '--no-interaction', '--no-ansi'], check=True)
+    volumes:
+      - name: 'venv'
+        path: '/workspace/.venv'
+
+# Example of how to build and push a Docker image.
+# This requires a Dockerfile in your repository root.
+#
+#  - name: 'gcr.io/cloud-builders/docker'
+#    id: 'Build Docker Image'
+#    args:
+#      - 'build'
+#      - '-t'
+#      - 'gcr.io/$PROJECT_ID/your-app-name:$COMMIT_SHA'
+#      - '.'
+#
+#  - name: 'gcr.io/cloud-builders/docker'
+#    id: 'Push Docker Image'
+#    args:
+#      - 'push'
+#      - 'gcr.io/$PROJECT_ID/your-app-name:$COMMIT_SHA'
+#
+# # Store the image name for later use in deployments.
+# images:
+#   - 'gcr.io/$PROJECT_ID/your-app-name:$COMMIT_SHA'
+
+# To enable caching across builds for the .venv directory,
+# you could use a Google Cloud Storage bucket.
+# This is more advanced and requires setting up a bucket.
+# See: https://cloud.google.com/build/docs/optimize-builds/speeding-up-builds#caching_directories_with_google_cloud_storage
