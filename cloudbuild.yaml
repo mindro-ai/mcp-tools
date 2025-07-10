@@ -71,3 +71,7 @@ steps:
 # you could use a Google Cloud Storage bucket.
 # This is more advanced and requires setting up a bucket.
 # See: https://cloud.google.com/build/docs/optimize-builds/speeding-up-builds#caching_directories_with_google_cloud_storage
+
+
+options:
+  logging: CLOUD_LOGGING_ONLY
