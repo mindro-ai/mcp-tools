@@ -5,9 +5,10 @@ A modular Model Context Protocol (MCP) server that supports multiple endpoints, 
 ## Features
 
 - **Modular Architecture**: Support for multiple MCP endpoints in a single server
-- **NocoDB Integration**: Full CRUD operations for NocoDB databases
 - **Extensible Design**: Easy to add new endpoints
 - **Environment-based Configuration**: Flexible configuration through environment variables
+
+- **NocoDB Integration**: Full CRUD operations for NocoDB databases
 
 ## Architecture
 
@@ -26,9 +27,9 @@ poetry install
 
 2. Set up environment variables for NocoDB and MCP server:
 ```bash
+export MCP_PORT="8080"
 export NOCODB_URL="https://your-nocodb-instance.com"
 export NOCODB_API_TOKEN="your-api-token"
-export MCP_PORT="8080"
 ```
 
 ## Usage
