@@ -1,5 +1,5 @@
 steps:
-  - name: 'eu.gcr.io/cloud-builders/docker'
+  - name: 'gcr.io/cloud-builders/docker'
     id: 'Build and Push Docker Image'
     entrypoint: 'bash'
     args:
