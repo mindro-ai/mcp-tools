@@ -13,9 +13,9 @@ A modular Model Context Protocol (MCP) server that supports multiple endpoints, 
 
 The project uses a modular design with the following components:
 
-- **BaseMCPServer**: Main server that can handle multiple endpoints
-- **NocoDBMCPServer**: NocoDB-specific endpoint implementation
-- **ExampleMCPServer**: Example endpoint to demonstrate extensibility
+- `BaseMCPServer`: Main server that can handle multiple endpoints. It uses FastAPI to mount each endpoint on a separate path.
+- `HealthMCPServer`: Health-specific endpoint implementation.
+- `NocoDBMCPServer`: NocoDB-specific endpoint implementation.
 
 ## Installation
 
@@ -28,7 +28,6 @@ poetry install
 ```bash
 export NOCODB_URL="https://your-nocodb-instance.com"
 export NOCODB_API_TOKEN="your-api-token"
-export MCP_TRANSPORT="sse"
 export MCP_PORT="8080"
 ```
 
@@ -44,59 +43,61 @@ poetry run mcp-server
 python -m mcp_tools
 ```
 
-### Default Endpoint
+### Endpoints
 
-By default, the server will be available at:
+The server exposes different MCP endpoints on different paths. For example:
+- **Health Endpoint**: `http://localhost:8080/health/sse`
+- **NocoDB Endpoint**: `http://localhost:8080/nocodb/sse`
 
-    http://localhost:8080/sse
-
-**Note**: The SSE endpoint is always available at `/sse` regardless of configuration.
+Accessing the base path for an endpoint (e.g., `http://localhost:8080/health`) will redirect to the SSE endpoint.
 
 ### MCP Client Configuration Example
 
+To connect to the **health** endpoint, use the full SSE path:
 ```json
 {
-  "endpoint": "http://localhost:8080/sse",
+  "endpoint": "http://localhost:8080/health/sse",
   "transport": "sse"
 }
 ```
 
 or, if your client uses environment variables:
-
 ```
-MCP_ENDPOINT=http://localhost:8080/sse
+MCP_ENDPOINT=http://localhost:8080/health/sse
 MCP_TRANSPORT=sse
+```
+
+To connect to the **nocodb** endpoint, use the full SSE path:
+```json
+{
+  "endpoint": "http://localhost:8080/nocodb/sse",
+  "transport": "sse"
+}
 ```
 
 ### Available Tools
 
-#### NocoDB Tools (prefixed with `nocodb_`)
+#### Health Tools (available at `/health/sse`)
+
+- `get_health_status`: Get the current health status of the system.
+
+#### NocoDB Tools (available at `/nocodb/sse`)
 
 All NocoDB tools require a `base_id` parameter to specify which NocoDB base to work with:
 
-- `nocodb_retrieve_records`: Query records from NocoDB tables
-  - Parameters: `base_id`, `table_name`, `row_id` (optional), `filters` (optional), etc.
-- `nocodb_create_records`: Create new records
-  - Parameters: `base_id`, `table_name`, `data`, `bulk` (optional)
-- `nocodb_update_records`: Update existing records
-  - Parameters: `base_id`, `table_name`, `data`, `row_id` or `bulk_ids`
-- `nocodb_delete_records`: Delete records
-  - Parameters: `base_id`, `table_name`, `row_id` or `bulk_ids`
-- `nocodb_get_schema`: Get table schema
-  - Parameters: `base_id`, `table_name`
-- `nocodb_list_tables`: List all tables in the base
-  - Parameters: `base_id`
+- `retrieve_records`: Query records from NocoDB tables
+- `create_records`: Create new records
+- `update_records`: Update existing records
+- `delete_records`: Delete records
+- `get_schema`: Get table schema
+- `list_tables`: List all tables in the base
 
-#### Example Tools (prefixed with `example_`)
-
-- `example_hello_world`: Simple greeting tool
-- `example_get_config`: Get endpoint configuration
 
 ## Adding New Endpoints
 
 To add a new MCP endpoint:
 
-1. Create a new endpoint class that implements the required interface:
+1. Create a new endpoint class that implements the required interface (it must have a `get_mcp_server` method that returns a `FastMCP` instance):
 
 ```python
 from mcp.server.fastmcp import FastMCP, Context
@@ -121,9 +122,6 @@ class MyEndpointMCPServer:
 2. Register the endpoint in `__main__.py`:
 
 ```python
-def create_my_endpoint_server(config: dict):
-    return MyEndpointMCPServer(config)
-
 # In main():
 my_server = create_my_endpoint_server(config)
 if my_server:
@@ -133,13 +131,12 @@ if my_server:
 ## Configuration
 
 The server supports environment-based configuration:
-
-- `NOCODB_URL`: NocoDB instance URL
-- `NOCODB_API_TOKEN`: NocoDB API token
-- `MCP_TRANSPORT`: MCP server transport protocol (default: `sse`)
 - `MCP_PORT`: MCP server port (default: `8080`)
 
-**Note**: `base_id` is no longer a global configuration. It must be provided as a parameter to each NocoDB tool call to specify which base to work with.
+### NocoDB specific configuration
+- `NOCODB_URL`: NocoDB instance URL
+- `NOCODB_API_TOKEN`: NocoDB API token
+
 
 ## Development
 
@@ -150,18 +147,19 @@ mcp_tools/
 ├── __init__.py
 ├── __main__.py          # Main entry point
 ├── base_server.py       # Base MCP server class
-├── nocodb.py           # NocoDB endpoint implementation
-├── example_endpoint.py # Example endpoint
+├── health/              # Health endpoint module
+│   ├── __init__.py
+│   └── health.py
+├── nocodb/              # NocoDB endpoint module
+│   ├── __init__.py
+│   └── nocodb.py
 └── old_server.py       # Legacy implementation
 ```
 
 ### Dependencies
 
-- `httpx`: HTTP client for API requests
-- `pydantic`: Data validation
-- `mcp`: Model Context Protocol server framework
-- `uvicorn`: ASGI server for SSE/HTTP transport
-
-## License
-
-This project is licensed under the MIT License.
+- `fastapi`: For building the web server application.
+- `uvicorn`: ASGI server for SSE/HTTP transport.
+- `httpx`: HTTP client for API requests.
+- `pydantic`: Data validation.
+- `mcp`: Model Context Protocol server framework.

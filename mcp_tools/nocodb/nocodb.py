@@ -26,17 +26,15 @@ class NocoDBMCPServer:
         """
         self.nocodb_url = nocodb_url.rstrip('/')
         self.api_token = api_token
-        self.mcp = FastMCP("Nocodb MCP Server", log_level="ERROR")
-        self._register_tools()
     
-    def _register_tools(self):
+    def register_tools(self, mcp: FastMCP):
         """Register all NocoDB tools with the MCP server"""
-        self.mcp.tool()(self.retrieve_records)
-        self.mcp.tool()(self.create_records)
-        self.mcp.tool()(self.update_records)
-        self.mcp.tool()(self.delete_records)
-        self.mcp.tool()(self.get_schema)
-        self.mcp.tool()(self.list_tables)
+        mcp.tool()(self.retrieve_records)
+        mcp.tool()(self.create_records)
+        mcp.tool()(self.update_records)
+        mcp.tool()(self.delete_records)
+        mcp.tool()(self.get_schema)
+        mcp.tool()(self.list_tables)
     
     async def get_nocodb_client(self, ctx: Context = None) -> httpx.AsyncClient:
         """Create and return an authenticated httpx client for Nocodb API requests"""
@@ -837,7 +835,3 @@ class NocoDBMCPServer:
         finally:
             if 'client' in locals():
                 await client.aclose()
-
-    def get_mcp_server(self) -> FastMCP:
-        """Get the MCP server instance"""
-        return self.mcp

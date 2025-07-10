@@ -8,8 +8,7 @@ from dotenv import load_dotenv
 
 # Import our modules
 from . import (
-    DEFAULT_NAME, DEFAULT_LOG_LEVEL,
-    DEFAULT_TRANSPORT, DEFAULT_PORT
+    DEFAULT_NAME, DEFAULT_LOG_LEVEL, DEFAULT_PORT
 )
 from .base_server import BaseMCPServer
 from .nocodb import NocoDBMCPServer
@@ -29,10 +28,9 @@ logger = logging.getLogger("mcp-tools-main")
 def get_environment_config() -> dict:
     """Get configuration from environment variables"""
     config = {
+        "port": int(os.environ.get("MCP_PORT", DEFAULT_PORT)),
         "nocodb_url": os.environ.get("NOCODB_URL"),
         "nocodb_api_token": os.environ.get("NOCODB_API_TOKEN"),
-        "transport": os.environ.get("MCP_TRANSPORT", DEFAULT_TRANSPORT),
-        "port": int(os.environ.get("MCP_PORT", DEFAULT_PORT)),
     }
     
     # Log configuration status
@@ -41,6 +39,18 @@ def get_environment_config() -> dict:
         logger.info("Environment variable %s: %s", key, status)
     
     return config
+
+
+def create_health_server() -> HealthMCPServer:
+    """Create and return a Health MCP server"""
+    try:
+        config = {"version": "1.0.0", "description": "Health endpoint"}
+        server = HealthMCPServer(config)
+        logger.info("Health MCP server created successfully")
+        return server
+    except Exception as e:
+        logger.error("Failed to create Health MCP server: %s", str(e))
+        raise
 
 
 def create_nocodb_server(config: dict) -> Optional[NocoDBMCPServer]:
@@ -61,18 +71,6 @@ def create_nocodb_server(config: dict) -> Optional[NocoDBMCPServer]:
         return None
 
 
-def create_health_server() -> HealthMCPServer:
-    """Create and return a Health MCP server"""
-    try:
-        config = {"version": "1.0.0", "description": "Health endpoint"}
-        server = HealthMCPServer(config)
-        logger.info("Health MCP server created successfully")
-        return server
-    except Exception as e:
-        logger.error("Failed to create Health MCP server: %s", str(e))
-        raise
-
-
 def main() -> None:
     """
     This is the main entry point for the MCP tools project.
@@ -86,17 +84,17 @@ def main() -> None:
     # Create the main MCP server
     main_server = BaseMCPServer(name=DEFAULT_NAME, log_level=DEFAULT_LOG_LEVEL, port=config["port"])
     
-    # Register NocoDB endpoint if configuration is available
-    nocodb_server = create_nocodb_server(config)
-    if nocodb_server:
-        main_server.register_endpoint("nocodb", nocodb_server)
-    
     # Register Health endpoint (always available for system monitoring)
     try:
         health_server = create_health_server()
         main_server.register_endpoint("health", health_server)
     except Exception as e:
         logger.warning("Could not register health endpoint: %s", str(e))
+    
+    # Register NocoDB endpoint if configuration is available
+    nocodb_server = create_nocodb_server(config)
+    if nocodb_server:
+        main_server.register_endpoint("nocodb", nocodb_server)
     
     # Check if we have any endpoints registered
     if not main_server.endpoints:
@@ -107,24 +105,7 @@ def main() -> None:
     # Run the server
     try:
         logger.info("Starting MCP server...")
-        
-        # Handle asyncio event loop for SSE transport
-        if config["transport"] in ["sse", "streamable-http"]:
-            import asyncio
-            try:
-                # Check if there's already an event loop running
-                loop = asyncio.get_running_loop()
-                logger.info("Event loop already running, using existing loop")
-            except RuntimeError:
-                # No event loop running, create a new one
-                logger.info("Creating new event loop")
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-        
-        main_server.run(
-            transport=config["transport"],
-            port=config["port"]
-        )
+        main_server.run()
     except KeyboardInterrupt:
         logger.info("MCP server stopped by user")
     except Exception as e:

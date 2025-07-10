@@ -10,7 +10,7 @@ def test_base_server_creation():
     server = BaseMCPServer("Test Server")
     
     assert server.name == "Test Server"
-    assert server.mcp is not None
+    assert server.app is not None
     assert len(server.endpoints) == 0
 
 
@@ -32,14 +32,14 @@ def test_base_server_register_invalid_endpoint():
     # Create an object without get_mcp_server method
     invalid_endpoint = object()
     
-    with pytest.raises(ValueError, match="must have a get_mcp_server"):
+    with pytest.raises(ValueError, match=r"Endpoint server invalid must have a register_tools\(\) method"):
         base_server.register_endpoint("invalid", invalid_endpoint)
 
 
-def test_base_server_get_mcp_server():
-    """Test that the server returns its MCP server instance"""
+def test_base_server_get_app():
+    """Test that the server returns its FastAPI app instance"""
     server = BaseMCPServer("Test Server")
-    mcp_server = server.get_mcp_server()
+    app = server.get_app()
     
-    assert mcp_server is not None
-    assert mcp_server == server.mcp 
+    assert app is not None
+    assert app == server.app 
