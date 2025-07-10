@@ -27,12 +27,16 @@ def test_nocodb_server_url_normalization():
 
 
 def test_nocodb_server_has_mcp_server():
-    """Test that the server has a get_mcp_server method"""
+    """Test that the server has a get_mcp_server method and returns a FastMCP instance with expected public methods"""
     server = NocoDBMCPServer(
         nocodb_url="https://example.com",
         api_token="test-token"
     )
-    
+
     mcp_server = server.get_mcp_server()
     assert mcp_server is not None
-    assert hasattr(mcp_server, '_tools') 
+    # Check for public interface instead of private attributes
+    assert hasattr(mcp_server, 'tool')
+    assert callable(getattr(mcp_server, 'tool', None))
+    assert hasattr(mcp_server, 'run')
+    assert callable(getattr(mcp_server, 'run', None)) 

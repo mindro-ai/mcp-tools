@@ -13,7 +13,7 @@ from . import (
 )
 from .base_server import BaseMCPServer
 from .nocodb import NocoDBMCPServer
-from .example_endpoint import ExampleMCPServer
+from .health import HealthMCPServer
 
 load_dotenv()
 
@@ -61,15 +61,15 @@ def create_nocodb_server(config: dict) -> Optional[NocoDBMCPServer]:
         return None
 
 
-def create_example_server() -> ExampleMCPServer:
-    """Create and return an Example MCP server"""
+def create_health_server() -> HealthMCPServer:
+    """Create and return a Health MCP server"""
     try:
-        config = {"version": "1.0.0", "description": "Example endpoint"}
-        server = ExampleMCPServer(config)
-        logger.info("Example MCP server created successfully")
+        config = {"version": "1.0.0", "description": "Health endpoint"}
+        server = HealthMCPServer(config)
+        logger.info("Health MCP server created successfully")
         return server
     except Exception as e:
-        logger.error("Failed to create Example MCP server: %s", str(e))
+        logger.error("Failed to create Health MCP server: %s", str(e))
         raise
 
 
@@ -91,12 +91,12 @@ def main() -> None:
     if nocodb_server:
         main_server.register_endpoint("nocodb", nocodb_server)
     
-    # Register Example endpoint (always available for demonstration)
+    # Register Health endpoint (always available for system monitoring)
     try:
-        example_server = create_example_server()
-        main_server.register_endpoint("example", example_server)
+        health_server = create_health_server()
+        main_server.register_endpoint("health", health_server)
     except Exception as e:
-        logger.warning("Could not register example endpoint: %s", str(e))
+        logger.warning("Could not register health endpoint: %s", str(e))
     
     # Check if we have any endpoints registered
     if not main_server.endpoints:

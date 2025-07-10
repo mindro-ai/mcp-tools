@@ -2,7 +2,7 @@
 
 import pytest
 from mcp_tools.base_server import BaseMCPServer
-from mcp_tools.example_endpoint import ExampleMCPServer
+from mcp_tools.health import HealthMCPServer
 
 
 def test_base_server_creation():
@@ -17,12 +17,12 @@ def test_base_server_creation():
 def test_base_server_register_endpoint():
     """Test that endpoints can be registered"""
     base_server = BaseMCPServer("Test Server")
-    example_server = ExampleMCPServer({"test": "config"})
+    health_server = HealthMCPServer({"test": "config"})
     
-    base_server.register_endpoint("example", example_server)
+    base_server.register_endpoint("health", health_server)
     
-    assert "example" in base_server.endpoints
-    assert base_server.endpoints["example"] == example_server
+    assert "health" in base_server.endpoints
+    assert base_server.endpoints["health"] == health_server
 
 
 def test_base_server_register_invalid_endpoint():

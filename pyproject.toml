@@ -17,6 +17,7 @@ uvicorn = "^0.27.0"
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.4.1"
 pylint = "^3.0.0"
+pytest-asyncio = "^1.0.0"
 
 [tool.poetry.scripts]
 mcp-server = "mcp_tools.__main__:main"
