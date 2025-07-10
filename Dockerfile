@@ -8,6 +8,7 @@ WORKDIR /app
 
 # Poetry stage - install poetry
 FROM base AS poetry
+ARG POETRY_VER
 RUN apt-get update && \
     apt-get install -y --no-install-recommends curl && \
     curl -sSL https://install.python-poetry.org | python3 - --version ${POETRY_VER} && \
