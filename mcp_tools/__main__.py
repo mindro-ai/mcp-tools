@@ -11,8 +11,9 @@ from . import (
     DEFAULT_NAME, DEFAULT_LOG_LEVEL, DEFAULT_PORT
 )
 from .base_server import BaseMCPServer
-from .nocodb import NocoDBMCPServer
 from .health import HealthMCPServer
+from .nocodb import NocoDBMCPServer
+from .drawings import DrawingsMCPServer
 
 load_dotenv()
 
@@ -50,6 +51,18 @@ def create_health_server() -> HealthMCPServer:
         return server
     except Exception as e:
         logger.error("Failed to create Health MCP server: %s", str(e))
+        raise
+
+
+def create_drawings_server() -> DrawingsMCPServer:
+    """Create and return a Drawings MCP server"""
+    try:
+        config = {"version": "1.0.0", "description": "Drawings endpoint"}
+        server = DrawingsMCPServer(config)
+        logger.info("Drawings MCP server created successfully")
+        return server
+    except Exception as e:
+        logger.error("Failed to create Drawings MCP server: %s", str(e))
         raise
 
 
@@ -91,6 +104,13 @@ def main() -> None:
     except Exception as e:
         logger.warning("Could not register health endpoint: %s", str(e))
     
+    # Register Drawings endpoint
+    try:
+        drawings_server = create_drawings_server()
+        main_server.register_endpoint("drawings", drawings_server)
+    except Exception as e:
+        logger.warning("Could not register drawings endpoint: %s", str(e))
+
     # Register NocoDB endpoint if configuration is available
     nocodb_server = create_nocodb_server(config)
     if nocodb_server:
