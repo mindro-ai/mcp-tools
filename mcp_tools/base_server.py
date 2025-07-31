@@ -72,3 +72,8 @@ class BaseMCPServer:
             raise RuntimeError("No endpoints available to run")
 
         uvicorn.run(self.app, host="0.0.0.0", port=self.port, log_level=self.log_level.lower()) 
+
+
+
+
+
