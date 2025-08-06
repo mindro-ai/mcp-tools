@@ -891,7 +891,7 @@ class NocoDBMCPServer:
             return {"error": True, "message": error_msg}
 
         # normalize table name so first letter of each word is uppercase
-        table_name = " ".join(word.capitalize() for word in table_name.split(" "))
+        # table_name = " ".join(word.capitalize() for word in table_name.split(" "))
 
         # Log query parameters for debugging
         if logger.isEnabledFor(logging.DEBUG):
