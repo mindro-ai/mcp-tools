@@ -1,7 +1,7 @@
 ARG POETRY_VER=2.1.3
 
 # Use a multi-stage build to optimize the image size and dependencies
-FROM python:3.12.2-slim AS base
+FROM python:3.12 AS base
 ARG POETRY_VER
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 WORKDIR /app
@@ -23,7 +23,7 @@ RUN /root/.local/bin/poetry config virtualenvs.create false && \
     /root/.local/bin/poetry install --no-interaction --no-ansi --without dev --no-root
 
 # Final runtime stage
-FROM python:3.12.9-slim AS runtime
+FROM python:3.12 AS runtime
 ARG MCP_PORT="8080"
 ENV MCP_PORT=${MCP_PORT} \
     PIP_DISABLE_PIP_VERSION_CHECK=1
