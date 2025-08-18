@@ -96,7 +96,11 @@ def main() -> None:
         name=DEFAULT_NAME, log_level=DEFAULT_LOG_LEVEL, port=config["port"]
     )
 
+    print(main_server.get_app().routes)
     # Register Health endpoint (always available for system monitoring)
+
+    for route in main_server.get_app().routes:
+        print(route.path)
     try:
         health_server = create_health_server()
         main_server.register_endpoint("health", health_server)
