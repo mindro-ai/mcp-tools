@@ -5,7 +5,7 @@ from typing import Dict, Any
 
 from mcp.server.fastmcp import FastMCP, Context
 
-from .company_structure import generate_diagram
+from .svg_generator import SVGGenerator
 
 logger = logging.getLogger("drawings-endpoint")
 
@@ -21,6 +21,7 @@ class DrawingsMCPServer:
             config: Configuration dictionary for the endpoint
         """
         self.config = config or {}
+        self.svg_generator = SVGGenerator()
 
     def register_tools(self, mcp: FastMCP):
         """Register all drawing tools with the MCP server"""
@@ -29,16 +30,22 @@ class DrawingsMCPServer:
     async def company_structure(
             self,
             companies: Dict[str, Any],
+            color_category: str = "professional",
+            custom_colors: Dict[str, str] = None,
+            focus_company: str = "",
             ctx: Context = None
-    ) -> str:
+    ) -> bytes:
         """
-        Generates a company structure diagram as an SVG.
+        Generates a company structure diagram as an SVG binary file.
 
         Args:
             companies: A dictionary defining the company structure.
+            color_category: Color category for styling (professional, vibrant, pastel, monochrome, minimal, custom)
+            custom_colors: Custom colors dictionary (used when color_category is "custom")
+            focus_company: Identifier of the company to highlight with a different color
 
         Returns:
-            An SVG string of the company structure diagram.
+            SVG binary data of the company structure diagram.
 
         Example:
         Get company structure:
@@ -47,11 +54,17 @@ class DrawingsMCPServer:
         logger.info("Company structure request")
 
         try:
-            fig = generate_diagram(companies)
-            # Using kaleido to convert to svg
-            svg_image = fig.to_image(format="svg").decode("utf-8")
+            # Generate SVG content using the new SVG generator
+            svg_content = self.svg_generator.generate_company_diagram(
+                companies, color_category, custom_colors, focus_company
+            )
+            
+            # Convert SVG string to binary data
+            svg_binary = svg_content.encode('utf-8')
+            
             logger.info("Company structure diagram generated successfully.")
-            return svg_image
+            return svg_binary
         except Exception as e:
             logger.error("Failed to generate company structure diagram: %s", e)
-            return f"Error: {e}" 
+            error_svg = self.svg_generator._generate_error_svg(str(e))
+            return error_svg.encode('utf-8') 
