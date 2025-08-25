@@ -7,8 +7,7 @@ from typing import Dict, Any, Set, Optional
 from .constants import (
     SVG_WIDTH, SVG_HEIGHT_BASE, SVG_HEIGHT_PER_LEVEL,
     BOX_WIDTH, BOX_HEIGHT, BOX_MARGIN, ENTITY_TYPES,
-    ENTITY_STYLES, CONNECTION_STYLES, OWNERSHIP_THRESHOLDS,
-    COLOR_CATEGORIES
+    ENTITY_STYLES, CONNECTION_STYLES, OWNERSHIP_THRESHOLDS
 )
 
 
@@ -18,73 +17,57 @@ class SVGGenerator:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
     
-    def generate_company_diagram(self, companies_data: Dict[str, Any], color_category: str = "professional", custom_colors: Dict[str, str] = None, focus_company: str = "") -> str:
+    def generate_company_diagram(self, companies_data: Dict[str, Any], custom_colors: Dict[str, str], focus_company: str = "") -> str:
         """Generate a simple SVG diagram locally"""
         try:
-            # Get the color category styles
-            if color_category == "custom" and custom_colors:
-                # Build custom color category dynamically
-                entity_styles = {
-                    "person": {
-                        "shape": "rectangle",
-                        "fill_color": custom_colors.get("person_color", "#FF6B6B"),
-                        "stroke_color": self._darken_color(custom_colors.get("person_color", "#FF6B6B")),
-                        "text_color": custom_colors.get("custom_font_color", "#333333"),
-                        "icon": ""
-                    },
-                    "investor": {
-                        "shape": "rectangle",
-                        "fill_color": custom_colors.get("investor_color", "#F8BBD9"),
-                        "stroke_color": self._darken_color(custom_colors.get("investor_color", "#F8BBD9")),
-                        "text_color": custom_colors.get("custom_font_color", "#333333"),
-                        "icon": ""
-                    },
-                    "trust": {
-                        "shape": "rectangle",
-                        "fill_color": custom_colors.get("investor_color", "#F8BBD9"),
-                        "stroke_color": self._darken_color(custom_colors.get("investor_color", "#F8BBD9")),
-                        "text_color": custom_colors.get("custom_font_color", "#333333"),
-                        "icon": ""
-                    },
-                    "foundation": {
-                        "shape": "rectangle",
-                        "fill_color": custom_colors.get("foundation_color", "#96CEB4"),
-                        "stroke_color": self._darken_color(custom_colors.get("foundation_color", "#96CEB4")),
-                        "text_color": custom_colors.get("custom_font_color", "#333333"),
-                        "icon": ""
-                    },
-                    "company": {
-                        "shape": "rectangle",
-                        "fill_color": custom_colors.get("company_color", "#4A90E2"),
-                        "stroke_color": self._darken_color(custom_colors.get("company_color", "#4A90E2")),
-                        "text_color": custom_colors.get("custom_font_color", "#333333"),
-                        "icon": ""
-                    },
-                    "focus_company": {
-                        "shape": "rectangle",
-                        "fill_color": custom_colors.get("focus_company_color", "#FFD93D"),  # Configurable focus company color
-                        "stroke_color": custom_colors.get("focus_company_border", "#FF0000"),  # Configurable border color
-                        "stroke_width": 4,  # Thicker border for focus company
-                        "text_color": "#333333",  # Dark text for contrast
-                        "icon": ""
-                    }
+            # Build custom color category dynamically
+            entity_styles = {
+                "person": {
+                    "shape": "rectangle",
+                    "fill_color": custom_colors.get("person_color", "#FF6B6B"),
+                    "stroke_color": self._darken_color(custom_colors.get("person_color", "#FF6B6B")),
+                    "text_color": custom_colors.get("custom_font_color", "#333333"),
+                    "icon": ""
+                },
+                "investor": {
+                    "shape": "rectangle",
+                    "fill_color": custom_colors.get("investor_color", "#F8BBD9"),
+                    "stroke_color": self._darken_color(custom_colors.get("investor_color", "#F8BBD9")),
+                    "text_color": custom_colors.get("custom_font_color", "#333333"),
+                    "icon": ""
+                },
+                "trust": {
+                    "shape": "rectangle",
+                    "fill_color": custom_colors.get("investor_color", "#F8BBD9"),
+                    "stroke_color": self._darken_color(custom_colors.get("investor_color", "#F8BBD9")),
+                    "text_color": custom_colors.get("custom_font_color", "#333333"),
+                    "icon": ""
+                },
+                "foundation": {
+                    "shape": "rectangle",
+                    "fill_color": custom_colors.get("foundation_color", "#96CEB4"),
+                    "stroke_color": self._darken_color(custom_colors.get("foundation_color", "#96CEB4")),
+                    "text_color": custom_colors.get("custom_font_color", "#333333"),
+                    "icon": ""
+                },
+                "company": {
+                    "shape": "rectangle",
+                    "fill_color": custom_colors.get("company_color", "#4A90E2"),
+                    "stroke_color": self._darken_color(custom_colors.get("company_color", "#4A90E2")),
+                    "text_color": custom_colors.get("custom_font_color", "#333333"),
+                    "icon": ""
+                },
+                "focus_company": {
+                    "shape": "rectangle",
+                    "fill_color": custom_colors.get("focus_company_color", "#FFD93D"),  # Configurable focus company color
+                    "stroke_color": custom_colors.get("focus_company_border", "#FF0000"),  # Configurable border color
+                    "stroke_width": 4,  # Thicker border for focus company
+                    "text_color": "#333333",  # Dark text for contrast
+                    "icon": ""
                 }
-                # Background is always transparent
-                background_color = "transparent"
-            else:
-                entity_styles = COLOR_CATEGORIES.get(color_category, COLOR_CATEGORIES["professional"])
-                # Override focus company styling if provided in custom_colors
-                if custom_colors and "focus_company" in entity_styles:
-                    if "focus_company_color" in custom_colors:
-                        entity_styles["focus_company"]["fill_color"] = custom_colors["focus_company_color"]
-                    if "focus_company_border" in custom_colors:
-                        entity_styles["focus_company"]["stroke_color"] = custom_colors["focus_company_border"]
-                    if "border_color" in custom_colors:
-                        # Apply border color to all companies
-                        for entity_type in entity_styles:
-                            if entity_type != "focus_company":
-                                entity_styles[entity_type]["stroke_color"] = custom_colors["border_color"]
-                background_color = "transparent"  # Always transparent
+            }
+            # Background is always transparent
+            background_color = "transparent"
             
             # Calculate positions and hierarchy
             company_positions = {}

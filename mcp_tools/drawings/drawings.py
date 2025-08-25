@@ -30,8 +30,7 @@ class DrawingsMCPServer:
     async def company_structure(
             self,
             companies: Dict[str, Any],
-            color_category: str = "professional",
-            custom_colors: Dict[str, str] = None,
+            custom_colors: Dict[str, str],
             focus_company: str = "",
             ctx: Context = None
     ) -> bytes:
@@ -40,8 +39,7 @@ class DrawingsMCPServer:
 
         Args:
             companies: A dictionary defining the company structure.
-            color_category: Color category for styling (professional, vibrant, pastel, monochrome, minimal, custom)
-            custom_colors: Custom colors dictionary (used when color_category is "custom")
+            custom_colors: Custom colors dictionary for styling
             focus_company: Identifier of the company to highlight with a different color
 
         Returns:
@@ -49,14 +47,14 @@ class DrawingsMCPServer:
 
         Example:
         Get company structure:
-           company_structure(companies={"mindro": {"name": "Mindro BV", "parents": []}})
+           company_structure(companies={"mindro": {"name": "Mindro BV", "parents": []}}, custom_colors={"company_color": "#4A90E2"})
         """
         logger.info("Company structure request")
 
         try:
             # Generate SVG content using the new SVG generator
             svg_content = self.svg_generator.generate_company_diagram(
-                companies, color_category, custom_colors, focus_company
+                companies, custom_colors, focus_company
             )
             
             # Convert SVG string to binary data
