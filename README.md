@@ -1,6 +1,20 @@
-# MCP Tools Project
+# MCP Tools
 
-A modular Model Context Protocol (MCP) server that supports multiple endpoints, starting with NocoDB integration.
+A collection of tools for the Model Context Protocol (MCP).
+
+## Architecture Decisions
+
+### SVG Generator Implementation
+
+The drawing tools use Plotly to generate company structure diagrams and convert them to SVG format for compatibility with the MCP protocol. This approach provides:
+
+1. **MCP Protocol Compatibility**: Converts Plotly figures to SVG binary data as required by the MCP protocol
+2. **Rich Visualization Features**: Leverages Plotly's powerful visualization capabilities
+3. **Custom Business Logic**: Implements specific requirements for company hierarchy visualization with ownership percentages
+4. **Interactive Development**: Plotly provides excellent debugging and development tools
+5. **Extensibility**: Easy to add new visualization features using Plotly's extensive API
+
+The implementation uses Plotly's `to_image()` method with Kaleido for SVG export, ensuring compatibility with the MCP protocol while maintaining the flexibility of Plotly's visualization engine.
 
 ## Features
 

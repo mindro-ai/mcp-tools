@@ -8,6 +8,25 @@ BOX_WIDTH = 180
 BOX_HEIGHT = 70
 BOX_MARGIN = 20
 
+# Default color constants (to avoid magic numbers)
+DEFAULT_COLORS = {
+    "person_color": "#FF6B6B",
+    "investor_color": "#F8BBD9", 
+    "trust_color": "#F8BBD9",
+    "foundation_color": "#96CEB4",
+    "company_color": "#4A90E2",
+    "custom_font_color": "#333333",
+    "focus_company_color": "#FFD93D",
+    "focus_company_stroke": "#FF0000",
+    "error_background": "#f8f9fa",
+    "error_text": "#e74c3c",
+    "person_stroke": "#CC5555",
+    "investor_stroke": "#E1BEE7",
+    "foundation_stroke": "#7AB894",
+    "company_stroke": "#2E5C8A",
+    "connection_stroke": "#999999"
+}
+
 # Entity types for styling
 ENTITY_TYPES = {
     "person": "person-box",
@@ -21,45 +40,45 @@ ENTITY_TYPES = {
 ENTITY_STYLES = {
     "person": {
         "shape": "rectangle",
-        "fill_color": "#FF6B6B",
-        "stroke_color": "#CC5555",
-        "text_color": "#333333",
+        "fill_color": DEFAULT_COLORS["person_color"],
+        "stroke_color": DEFAULT_COLORS["person_stroke"],
+        "text_color": DEFAULT_COLORS["custom_font_color"],
         "icon": ""
     },
     "investor": {
         "shape": "rectangle",
-        "fill_color": "#F8BBD9",
-        "stroke_color": "#E1BEE7",
-        "text_color": "#333333",
+        "fill_color": DEFAULT_COLORS["investor_color"],
+        "stroke_color": DEFAULT_COLORS["investor_stroke"],
+        "text_color": DEFAULT_COLORS["custom_font_color"],
         "icon": ""
     },
     "trust": {
         "shape": "rectangle",
-        "fill_color": "#F8BBD9",
-        "stroke_color": "#E1BEE7",
-        "text_color": "#333333",
+        "fill_color": DEFAULT_COLORS["trust_color"],
+        "stroke_color": DEFAULT_COLORS["investor_stroke"],
+        "text_color": DEFAULT_COLORS["custom_font_color"],
         "icon": ""
     },
     "foundation": {
         "shape": "rectangle",
-        "fill_color": "#96CEB4",
-        "stroke_color": "#7AB894",
-        "text_color": "#333333",
+        "fill_color": DEFAULT_COLORS["foundation_color"],
+        "stroke_color": DEFAULT_COLORS["foundation_stroke"],
+        "text_color": DEFAULT_COLORS["custom_font_color"],
         "icon": ""
     },
     "company": {
         "shape": "rectangle",
-        "fill_color": "#4A90E2",
-        "stroke_color": "#2E5C8A",
-        "text_color": "#333333",
+        "fill_color": DEFAULT_COLORS["company_color"],
+        "stroke_color": DEFAULT_COLORS["company_stroke"],
+        "text_color": DEFAULT_COLORS["custom_font_color"],
         "icon": ""
     },
     "focus_company": {
         "shape": "rectangle",
-        "fill_color": "#FFD93D",
-        "stroke_color": "#FF0000",
+        "fill_color": DEFAULT_COLORS["focus_company_color"],
+        "stroke_color": DEFAULT_COLORS["focus_company_stroke"],
         "stroke_width": 4,
-        "text_color": "#333333",
+        "text_color": DEFAULT_COLORS["custom_font_color"],
         "icon": ""
     }
 }
@@ -67,22 +86,22 @@ ENTITY_STYLES = {
 # Connection line styles
 CONNECTION_STYLES = {
     "default": {
-        "stroke_color": "#999999",  # Lighter gray
+        "stroke_color": DEFAULT_COLORS["connection_stroke"],  # Lighter gray
         "stroke_width": 2,
         "stroke_dasharray": "none"
     },
     "majority_ownership": {
-        "stroke_color": "#999999",  # Lighter gray
+        "stroke_color": DEFAULT_COLORS["connection_stroke"],  # Lighter gray
         "stroke_width": 3,
         "stroke_dasharray": "none"
     },
     "minority_ownership": {
-        "stroke_color": "#999999",  # Lighter gray
+        "stroke_color": DEFAULT_COLORS["connection_stroke"],  # Lighter gray
         "stroke_width": 2,
         "stroke_dasharray": "5,5"
     },
     "joint_venture": {
-        "stroke_color": "#999999",  # Lighter gray
+        "stroke_color": DEFAULT_COLORS["connection_stroke"],  # Lighter gray
         "stroke_width": 2,
         "stroke_dasharray": "10,5"
     }

@@ -41,12 +41,31 @@ class BaseMCPServer:
         if not hasattr(endpoint_server, 'register_tools'):
             raise ValueError(f"Endpoint server {name} must have a register_tools() method")
 
-        # Create a new FastMCP instance for each endpoint, configured with its mount path
-        endpoint_mcp = FastMCP(
-            f"{self.name} - {name} Endpoint",
-            log_level=self.log_level,
-            root_path=f"/{name}"
-        )
+        # Create a new FastMCP instance for each endpoint
+        # Try root_path first, then fall back to mount_path if that doesn't work
+        try:
+            endpoint_mcp = FastMCP(
+                f"{self.name} - {name} Endpoint",
+                log_level=self.log_level,
+                root_path=f"/{name}"
+            )
+            logger.info("Using root_path for endpoint: %s", name)
+        except TypeError:
+            # If root_path doesn't work, try mount_path
+            try:
+                endpoint_mcp = FastMCP(
+                    f"{self.name} - {name} Endpoint",
+                    log_level=self.log_level,
+                    mount_path=f"/{name}"
+                )
+                logger.info("Using mount_path for endpoint: %s", name)
+            except TypeError:
+                # If neither works, create without path parameter
+                endpoint_mcp = FastMCP(
+                    f"{self.name} - {name} Endpoint",
+                    log_level=self.log_level
+                )
+                logger.info("Using no path parameter for endpoint: %s", name)
 
         # Register the endpoint's tools with the new MCP instance
         endpoint_server.register_tools(endpoint_mcp)
