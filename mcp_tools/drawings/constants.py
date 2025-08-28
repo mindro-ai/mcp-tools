@@ -8,6 +8,24 @@ BOX_WIDTH = 180
 BOX_HEIGHT = 70
 BOX_MARGIN = 20
 
+# Positioning constants
+Y_OFFSET_BASE = 80
+
+# Font sizes
+FONT_SIZE_NORMAL = 12
+FONT_SIZE_ERROR = 14
+
+# Error SVG dimensions
+ERROR_SVG_WIDTH = 400
+ERROR_SVG_HEIGHT = 200
+
+# Color manipulation
+COLOR_DARKENING_FACTOR = 0.8
+
+# Line widths
+FOCUS_COMPANY_LINE_WIDTH = 4
+REGULAR_COMPANY_LINE_WIDTH = 2
+
 # Default color constants (to avoid magic numbers)
 DEFAULT_COLORS = {
     "person_color": "#FF6B6B",

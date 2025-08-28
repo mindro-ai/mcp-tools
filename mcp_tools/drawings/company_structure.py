@@ -17,7 +17,10 @@ from plotly.subplots import make_subplots
 from .constants import (
     SVG_WIDTH, SVG_HEIGHT_BASE, SVG_HEIGHT_PER_LEVEL,
     BOX_WIDTH, BOX_HEIGHT, BOX_MARGIN, ENTITY_TYPES,
-    ENTITY_STYLES, CONNECTION_STYLES, OWNERSHIP_THRESHOLDS, DEFAULT_COLORS
+    ENTITY_STYLES, CONNECTION_STYLES, OWNERSHIP_THRESHOLDS, DEFAULT_COLORS,
+    Y_OFFSET_BASE, FONT_SIZE_NORMAL, FONT_SIZE_ERROR,
+    ERROR_SVG_WIDTH, ERROR_SVG_HEIGHT, COLOR_DARKENING_FACTOR,
+    FOCUS_COMPANY_LINE_WIDTH, REGULAR_COMPANY_LINE_WIDTH
 )
 
 
@@ -126,17 +129,17 @@ class CompanyStructureGenerator:
                 
                 x = start_x + i * (BOX_WIDTH + BOX_MARGIN) + BOX_WIDTH // 2
                 # Flip the Y coordinate so that root companies (level 0) are at the top
-                y = 80 + (max_level - level) * SVG_HEIGHT_PER_LEVEL + BOX_HEIGHT // 2
+                y = Y_OFFSET_BASE + (max_level - level) * SVG_HEIGHT_PER_LEVEL + BOX_HEIGHT // 2
                 
                 # Determine color
                 if focus_company and company_id == focus_company:
                     fill_color = colors["focus_company"]
                     line_color = custom_colors.get("focus_company_border", DEFAULT_COLORS["focus_company_stroke"])
-                    line_width = 4
+                    line_width = FOCUS_COMPANY_LINE_WIDTH
                 else:
                     fill_color = colors.get(entity_type, colors["company"])
                     line_color = self._darken_color(fill_color)
-                    line_width = 2
+                    line_width = REGULAR_COMPANY_LINE_WIDTH
                 
                 # Add rectangle
                 fig.add_shape(
@@ -154,10 +157,10 @@ class CompanyStructureGenerator:
                 fig.add_annotation(
                     x=x,
                     y=y,
-                    text=company_name,
+                    text=self._sanitize_text(company_name),
                     showarrow=False,
                     font=dict(
-                        size=12,
+                        size=FONT_SIZE_NORMAL,
                         color=custom_colors.get("custom_font_color", DEFAULT_COLORS["custom_font_color"])
                     )
                 )
@@ -214,11 +217,11 @@ class CompanyStructureGenerator:
                             fig.add_annotation(
                                 x=label_x,
                                 y=label_y,
-                                text=f"{sanitized_percentage}%",
+                                text=self._sanitize_text(f"{sanitized_percentage}%"),
                                 showarrow=False,
                                 font=dict(
                                     family="Segoe UI, Arial, sans-serif",
-                                    size=12,
+                                    size=FONT_SIZE_NORMAL,
                                     color=DEFAULT_COLORS["custom_font_color"]
                                 ),
                                 xanchor="center",
@@ -236,7 +239,7 @@ class CompanyStructureGenerator:
                 index = companies_in_level.index(company_id)
                 x = start_x + index * (BOX_WIDTH + BOX_MARGIN) + BOX_WIDTH // 2
                 # Flip the Y coordinate so that root companies (level 0) are at the top
-                y = 80 + (max_level - level) * SVG_HEIGHT_PER_LEVEL + BOX_HEIGHT // 2
+                y = Y_OFFSET_BASE + (max_level - level) * SVG_HEIGHT_PER_LEVEL + BOX_HEIGHT // 2
                 return (x, y)
         return None
     
@@ -256,6 +259,20 @@ class CompanyStructureGenerator:
             except Exception:
                 pass
         return None
+    
+    def _sanitize_text(self, text: str) -> str:
+        """Sanitize text content to prevent XML parsing errors in SVG"""
+        if not text:
+            return ""
+        
+        # Escape XML special characters
+        text = text.replace("&", "&amp;")
+        text = text.replace("<", "&lt;")
+        text = text.replace(">", "&gt;")
+        text = text.replace('"', "&quot;")
+        text = text.replace("'", "&apos;")
+        
+        return text
     
     def _find_root_companies(self, companies_data: Dict[str, Any]) -> list:
         """Find root companies (no parents)"""
@@ -334,7 +351,7 @@ class CompanyStructureGenerator:
         else:
             return CONNECTION_STYLES["default"]
     
-    def _darken_color(self, hex_color: str, factor: float = 0.8) -> str:
+    def _darken_color(self, hex_color: str, factor: float = COLOR_DARKENING_FACTOR) -> str:
         """Darken a hex color by a factor"""
         try:
             # Remove # if present
@@ -354,9 +371,10 @@ class CompanyStructureGenerator:
     
     def _generate_error_svg(self, error_message: str) -> str:
         """Generate an error SVG when diagram generation fails"""
-        return f'''<svg width='400' height='200' xmlns='http://www.w3.org/2000/svg'>
-    <rect width="400" height="200" fill="{DEFAULT_COLORS['error_background']}"/>
-    <text x='200' y='100' text-anchor='middle' font-family='Segoe UI, Arial' font-size='14' fill='{DEFAULT_COLORS['error_text']}'>
-        Error generating diagram: {error_message}
+        sanitized_error = self._sanitize_text(error_message)
+        return f'''<svg width='{ERROR_SVG_WIDTH}' height='{ERROR_SVG_HEIGHT}' xmlns='http://www.w3.org/2000/svg'>
+    <rect width="{ERROR_SVG_WIDTH}" height="{ERROR_SVG_HEIGHT}" fill="{DEFAULT_COLORS['error_background']}"/>
+    <text x='{ERROR_SVG_WIDTH // 2}' y='{ERROR_SVG_HEIGHT // 2}' text-anchor='middle' font-family='Segoe UI, Arial' font-size='{FONT_SIZE_ERROR}' fill='{DEFAULT_COLORS['error_text']}'>
+        Error generating diagram: {sanitized_error}
     </text>
 </svg>'''
